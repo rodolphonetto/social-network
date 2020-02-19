@@ -32,7 +32,7 @@ class PostController {
 
       const data = request.only(["content"]);
 
-      const post = await Post.create({ ...data, author: id });
+      const post = await Post.create({ ...data, user_id: id });
 
       if (request.file.image) {
         // Upload imagens
@@ -100,6 +100,12 @@ class PostController {
     try {
       const { id } = params;
       const post = await Post.findOrFail(id);
+
+      if (post.user_id !== auth.user.id) {
+        return response
+          .status(403)
+          .send("Você não pode excluir o post de outra pessoa");
+      }
 
       await post.delete();
       response.send("Post excluido com sucesso");

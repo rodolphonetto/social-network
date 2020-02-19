@@ -12,3 +12,10 @@ Factory.blueprint("App/Models/User", faker => {
     password: "123123"
   };
 });
+
+Factory.blueprint("App/Models/Post", async faker => {
+  return {
+    user_id: (await Factory.model("App/Models/User").create()).id,
+    content: faker.paragraph()
+  };
+});

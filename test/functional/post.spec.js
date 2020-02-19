@@ -15,7 +15,7 @@ test("Authorized users can create posts", async ({ client }) => {
     .post("/posts/new")
     .loginVia(user)
     .send({
-      author: 2,
+      user_id: 2,
       content: "Teste de postagem"
     })
     .end();
@@ -24,7 +24,7 @@ test("Authorized users can create posts", async ({ client }) => {
   response.assertJSON(post.$attributes);
 });
 
-test("Unauthorized user can´t creat posts", async ({ client }) => {
+test("Unauthorized user can´t create posts", async ({ client }) => {
   const response = await client
     .post("/posts/new")
     .send({
@@ -35,23 +35,32 @@ test("Unauthorized user can´t creat posts", async ({ client }) => {
 });
 
 test("Authorized users can delete posts", async ({ client, assert }) => {
-  const user = await Factory.model("App/Models/User").create();
-  const post = await Post.create({
-    author: 2,
-    content: "Teste de postagem"
-  });
+  const post = await Factory.model("App/Models/Post").create();
   const response = await client
     .delete(`posts/delete/${post.id}`)
-    .loginVia(user)
+    .loginVia(await post.user().first())
     .send()
     .end();
   response.assertStatus(200);
   assert.equal(await Post.getCount(), 0);
 });
 
-test("Unauthorized users can´t delete posts", async ({ client, assert }) => {
+test("Post can't be deleted by a user who did not create it", async ({
+  client
+}) => {
+  const post = await Factory.model("App/Models/Post").create();
+  const notOwner = await Factory.model("App/Models/User").create();
+  const response = await client
+    .delete(`posts/delete/${post.id}`)
+    .loginVia(notOwner)
+    .send()
+    .end();
+  response.assertStatus(403);
+});
+
+test("Unauthorized users can´t delete posts", async ({ client }) => {
   const post = await Post.create({
-    author: 2,
+    user_id: 2,
     content: "Teste de postagem"
   });
   const response = await client

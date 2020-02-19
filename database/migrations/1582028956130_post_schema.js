@@ -8,7 +8,7 @@ class PostSchema extends Schema {
     this.create("posts", table => {
       table.increments();
       table
-        .integer("author")
+        .integer("user_id")
         .unsigned()
         .references("id")
         .inTable("users")
