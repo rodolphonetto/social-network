@@ -10,4 +10,4 @@ Route.get("/login", "SessionController.create");
 Route.get("/posts", "PostController.index").middleware("auth");
 Route.get("/posts/:id", "PostController.show").middleware("auth");
 Route.post("/posts/new", "PostController.store").middleware("auth");
-Route.post("/posts/delete/:id", "PostController.destroy").middleware("auth");
+Route.delete("/posts/delete/:id", "PostController.destroy").middleware("auth");

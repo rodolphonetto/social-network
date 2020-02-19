@@ -34,25 +34,27 @@ class PostController {
 
       const post = await Post.create({ ...data, author: id });
 
-      // Upload imagens
-      const postId = await Post.findOrFail(post.id);
-      const images = request.file("image", {
-        types: ["image"],
-        size: "2mb"
-      });
+      if (request.file.image) {
+        // Upload imagens
+        const postId = await Post.findOrFail(post.id);
+        const images = request.file("image", {
+          types: ["image"],
+          size: "2mb"
+        });
 
-      await images.moveAll(resolve("./public/uploads"), file => ({
-        name: `${Date.now()}-${file.clientName}`
-      }));
+        await images.moveAll(resolve("./public/uploads"), file => ({
+          name: `${Date.now()}-${file.clientName}`
+        }));
 
-      if (!images.movedAll()) {
-        return images.errors();
+        if (!images.movedAll()) {
+          return images.errors();
+        }
+        await Promise.all(
+          images
+            .movedList()
+            .map(image => postId.images().create({ pic_name: image.fileName }))
+        );
       }
-      await Promise.all(
-        images
-          .movedList()
-          .map(image => postId.images().create({ pic_name: image.fileName }))
-      );
 
       return post;
     } catch {
