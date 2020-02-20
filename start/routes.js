@@ -16,3 +16,8 @@ Route.put("/posts/update/:id", "PostController.update")
   .middleware("auth")
   .validator("StorePost");
 Route.delete("/posts/delete/:id", "PostController.destroy").middleware("auth");
+
+// Post Pics
+Route.post("/post_pics/add/:id", "PostPictureController.store").middleware(
+  "auth"
+);
