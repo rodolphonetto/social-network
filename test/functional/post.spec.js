@@ -10,7 +10,6 @@ const testFile2 = Helpers.appRoot("test/download2.jpg");
 const Factory = use("Factory");
 
 const Post = use("App/Models/Post");
-const PostPicture = use("App/Models/PostPicture");
 
 const { test, trait } = use("Test/Suite")("Post");
 trait("Test/ApiClient");
