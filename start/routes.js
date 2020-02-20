@@ -9,5 +9,10 @@ Route.get("/login", "SessionController.create");
 // Posts
 Route.get("/posts", "PostController.index").middleware("auth");
 Route.get("/posts/:id", "PostController.show").middleware("auth");
-Route.post("/posts/new", "PostController.store").middleware("auth");
+Route.post("/posts/new", "PostController.store")
+  .middleware("auth")
+  .validator("StorePost");
+Route.put("/posts/update/:id", "PostController.update")
+  .middleware("auth")
+  .validator("StorePost");
 Route.delete("/posts/delete/:id", "PostController.destroy").middleware("auth");

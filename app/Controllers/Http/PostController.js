@@ -6,7 +6,7 @@ const { resolve } = require("path");
 const Database = use("Database");
 
 class PostController {
-  async index() {
+  async index({ response }) {
     try {
       const posts = await Database.select(
         "posts.id",
@@ -17,8 +17,8 @@ class PostController {
         "images.pic_name"
       )
         .from("posts as posts")
-        .innerJoin("users as users", "posts.author", "users.id")
-        .innerJoin("post_pictures as images", "posts.id", "images.post_id");
+        .leftJoin("users as users", "posts.user_id", "users.id")
+        .leftJoin("post_pictures as images", "posts.id", "images.post_id");
 
       return posts;
     } catch {
@@ -62,9 +62,9 @@ class PostController {
     }
   }
 
-  async show({ params }) {
+  async show({ params, response }) {
+    const { id } = params;
     try {
-      const { id } = params;
       const post = await Database.select(
         "posts.id",
         "posts.content",
@@ -74,9 +74,9 @@ class PostController {
         "images.pic_name"
       )
         .from("posts as posts")
-        .innerJoin("users as users", "posts.author", "users.id")
-        .innerJoin("post_pictures as images", "posts.id", "images.post_id")
-        .where("id", id);
+        .leftJoin("users as users", "posts.user_id", "users.id")
+        .leftJoin("post_pictures as images", "posts.id", "images.post_id")
+        .where("posts.id", id);
 
       return post;
     } catch {
@@ -84,11 +84,17 @@ class PostController {
     }
   }
 
-  async update({ params, request, auth }) {
+  async update({ params, request, response, auth }) {
     const { id } = params;
     const data = request.only(["content"]);
 
     const post = await Post.findOrFail(id);
+
+    if (post.user_id !== auth.user.id) {
+      return response
+        .status(403)
+        .send("Você não pode alterar o post de outra pessoa");
+    }
 
     post.merge(data);
     await post.save();
