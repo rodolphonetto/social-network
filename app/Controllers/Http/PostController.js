@@ -26,33 +26,42 @@ class PostController {
     }
   }
 
-  async store({ request, auth }) {
+  async store({ request, response, auth }) {
+    const { id } = auth.user;
+
+    const data = request.only(["content"]);
+
+    const post = await Post.create({ ...data, user_id: id });
+
+    // Upload imagens
+    const postId = await Post.findOrFail(post.id);
+    const image = request.file("imagem", {
+      types: ["image"],
+      size: "2mb"
+    });
     try {
-      const { id } = auth.user;
-
-      const data = request.only(["content"]);
-
-      const post = await Post.create({ ...data, user_id: id });
-
-      if (request.file.image) {
-        // Upload imagens
-        const postId = await Post.findOrFail(post.id);
-        const images = request.file("image", {
-          types: ["image"],
-          size: "2mb"
+      if (image.move) {
+        await image.move(resolve("./public/uploads"), {
+          name: `${Date.now()}-${image.clientName}`
         });
 
-        await images.moveAll(resolve("./public/uploads"), file => ({
+        if (!image.moved()) {
+          return image.errors();
+        }
+        await postId.images().create({ pic_name: image.fileName });
+      } else {
+        await image.moveAll(resolve("./public/uploads"), file => ({
           name: `${Date.now()}-${file.clientName}`
         }));
 
-        if (!images.movedAll()) {
-          return images.errors();
+        if (!image.movedAll()) {
+          return image.errors();
         }
+
         await Promise.all(
-          images
+          image
             .movedList()
-            .map(image => postId.images().create({ pic_name: image.fileName }))
+            .map(img => postId.images().create({ pic_name: img.fileName }))
         );
       }
 
@@ -79,7 +88,7 @@ class PostController {
         .where("posts.id", id);
 
       return post;
-    } catch {
+    } catch (err) {
       response.internalServerError("Erro ao executar operação");
     }
   }

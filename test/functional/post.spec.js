@@ -1,16 +1,21 @@
 "use strict";
+const fs = require("fs");
 const Helpers = use("Helpers");
-
+const Database = use("Database");
+const { resolve } = require("path");
+const removeFile = Helpers.promisify(fs.unlink);
 const testFile = Helpers.appRoot("test/download.jpg");
+const testFile2 = Helpers.appRoot("test/download2.jpg");
+
+const Factory = use("Factory");
+
+const Post = use("App/Models/Post");
+const PostPicture = use("App/Models/PostPicture");
 
 const { test, trait } = use("Test/Suite")("Post");
 trait("Test/ApiClient");
 trait("Auth/Client");
 trait("DatabaseTransactions");
-
-const Factory = use("Factory");
-
-const Post = use("App/Models/Post");
 
 test("Can access a single post", async ({ client, assert }) => {
   const post = await Factory.model("App/Models/Post").create();
@@ -41,15 +46,36 @@ test("Authorized users can create posts", async ({ client }) => {
   const response = await client
     .post("/posts/new")
     .loginVia(user)
-    .send({
-      user_id: 2,
-      content: "Teste de postagem",
-      imagem: testFile
-    })
+    .field("user_id", 2)
+    .field("content", "Teste de postagem")
+    .attach("imagem", testFile)
     .end();
   response.assertStatus(200);
   const post = await Post.firstOrFail();
   response.assertJSON(post.$attributes);
+  const postPic = await Database.select("pic_name").from("post_pictures");
+  removeFile(resolve(`./public/uploads/${postPic[0].pic_name}`));
+});
+
+test("Authorized users can create posts with multiple files", async ({
+  client
+}) => {
+  const user = await Factory.model("App/Models/User").create();
+  const response = await client
+    .post("/posts/new")
+    .loginVia(user)
+    .field("user_id", 2)
+    .field("content", "Teste de postagem")
+    .attach("imagem", testFile)
+    .attach("imagem", testFile2)
+    .end();
+  response.assertStatus(200);
+  const post = await Post.firstOrFail();
+  response.assertJSON(post.$attributes);
+  const postPic = await Database.select("pic_name").from("post_pictures");
+  postPic.forEach(pic => {
+    removeFile(resolve(`./public/uploads/${pic.pic_name}`));
+  });
 });
 
 test("Can´t create posts with invalid fields", async ({ client }) => {
