@@ -57,7 +57,7 @@ test("Authorized users can create posts", async ({ client }) => {
   removeFile(resolve(`./public/uploads/${postPic[0].pic_name}`));
 });
 
-test("Authorized users can create posts with multiple files", async ({
+test("Authorized users can create posts with multiple pictures", async ({
   client
 }) => {
   const user = await Factory.model("App/Models/User").create();
