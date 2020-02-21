@@ -2,7 +2,7 @@
 
 const Post = use("App/Models/Post");
 
-const { resolve } = require("path");
+const UploadService = use("App/Services/UploadService");
 
 class PostController {
   async index({ response }) {
@@ -29,38 +29,15 @@ class PostController {
 
     const post = await Post.create({ ...data, user_id: id });
 
-    // Upload imagens
-    const postCreated = await Post.findOrFail(post.id);
     const image = request.file("imagem", {
       types: ["image"],
       size: "2mb"
     });
+
+    const uploadService = new UploadService();
+    await uploadService.uploadFile(image, id);
+
     try {
-      if (image.move) {
-        await image.move(resolve("./public/uploads"), {
-          name: `${Date.now()}-${image.clientName}`
-        });
-
-        if (!image.moved()) {
-          return image.errors();
-        }
-        await postCreated.images().create({ pic_name: image.fileName });
-      } else {
-        await image.moveAll(resolve("./public/uploads"), file => ({
-          name: `${Date.now()}-${file.clientName}`
-        }));
-
-        if (!image.movedAll()) {
-          return image.errors();
-        }
-
-        await Promise.all(
-          image
-            .movedList()
-            .map(img => postCreated.images().create({ pic_name: img.fileName }))
-        );
-      }
-
       const completePost = await Post.query()
         .select("id", "content", "updated_at", "user_id")
         .with("images", builder => {

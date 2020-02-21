@@ -51,6 +51,7 @@ test("Authorized users can create posts", async ({ client }) => {
     .attach("imagem", testFile)
     .end();
   const postPic = await Database.select("pic_name").from("post_pictures");
+  console.log(postPic);
   removeFile(resolve(`./public/uploads/${postPic[0].pic_name}`));
   response.assertStatus(200);
   const post = await Post.query()
