@@ -5,7 +5,9 @@ const Factory = use("Factory");
 const { resolve } = require("path");
 const removeFile = Helpers.promisify(fs.unlink);
 const testFile = Helpers.appRoot("test/download.jpg");
+const testFile2 = Helpers.appRoot("test/download2.jpg");
 const Database = use("Database");
+const PostPicture = use("App/Models/PostPicture");
 
 const { test, trait } = use("Test/Suite")("Post Picture");
 trait("Test/ApiClient");
@@ -18,11 +20,29 @@ test("Authorized user can add a pic to a post", async ({ client }) => {
   const response = await client
     .post(`/post_pics/add/${post.id}`)
     .loginVia(user)
-    .field("post_id", post.id)
     .attach("imagem", testFile)
     .end();
-  response.assertStatus(200);
-  response.assertJSON(post.$attributes);
   const postPic = await Database.select("pic_name").from("post_pictures");
   removeFile(resolve(`./public/uploads/${postPic[0].pic_name}`));
+  response.assertStatus(200);
+  const post_pictures = await Database.select("*").from("post_pictures");
+  response.assertJSON(post_pictures);
+});
+
+test("Authorized user can add multiple pics to a post", async ({ client }) => {
+  const post = await Factory.model("App/Models/Post").create();
+  const user = await Factory.model("App/Models/User").create();
+  const response = await client
+    .post(`/post_pics/add/${post.id}`)
+    .loginVia(user)
+    .attach("imagem", testFile)
+    .attach("imagem", testFile2)
+    .end();
+  const postPic = await Database.select("pic_name").from("post_pictures");
+  postPic.forEach(pic => {
+    removeFile(resolve(`./public/uploads/${pic.pic_name}`));
+  });
+  response.assertStatus(200);
+  const post_pictures = await Database.select("*").from("post_pictures");
+  response.assertJSON(post_pictures);
 });

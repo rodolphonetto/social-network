@@ -8,18 +8,15 @@ const Database = use("Database");
 class PostController {
   async index({ response }) {
     try {
-      const posts = await Database.select(
-        "posts.id",
-        "posts.content",
-        "users.first_name",
-        "users.last_name",
-        "posts.created_at",
-        "images.pic_name"
-      )
-        .from("posts as posts")
-        .leftJoin("users as users", "posts.user_id", "users.id")
-        .leftJoin("post_pictures as images", "posts.id", "images.post_id");
-
+      const posts = await Post.query()
+        .select("id", "content", "updated_at", "user_id")
+        .with("images", builder => {
+          builder.select(["id", "pic_name", "post_id"]);
+        })
+        .with("user", builder => {
+          builder.select(["id", "first_name", "last_name"]);
+        })
+        .fetch();
       return posts;
     } catch {
       response.internalServerError("Erro ao executar operação");
@@ -34,7 +31,7 @@ class PostController {
     const post = await Post.create({ ...data, user_id: id });
 
     // Upload imagens
-    const postId = await Post.findOrFail(post.id);
+    const postCreated = await Post.findOrFail(post.id);
     const image = request.file("imagem", {
       types: ["image"],
       size: "2mb"
@@ -48,7 +45,7 @@ class PostController {
         if (!image.moved()) {
           return image.errors();
         }
-        await postId.images().create({ pic_name: image.fileName });
+        await postCreated.images().create({ pic_name: image.fileName });
       } else {
         await image.moveAll(resolve("./public/uploads"), file => ({
           name: `${Date.now()}-${file.clientName}`
@@ -61,12 +58,23 @@ class PostController {
         await Promise.all(
           image
             .movedList()
-            .map(img => postId.images().create({ pic_name: img.fileName }))
+            .map(img => postCreated.images().create({ pic_name: img.fileName }))
         );
       }
 
-      return post;
-    } catch {
+      const completePost = await Post.query()
+        .select("id", "content", "updated_at", "user_id")
+        .with("images", builder => {
+          builder.select(["id", "pic_name", "post_id"]);
+        })
+        .with("user", builder => {
+          builder.select(["id", "first_name", "last_name"]);
+        })
+        .where("id", post.id)
+        .fetch();
+      return completePost.toJSON();
+    } catch (err) {
+      console.log(err);
       response.internalServerError("Erro ao executar operação");
     }
   }

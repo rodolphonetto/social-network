@@ -50,11 +50,19 @@ test("Authorized users can create posts", async ({ client }) => {
     .field("content", "Teste de postagem")
     .attach("imagem", testFile)
     .end();
-  response.assertStatus(200);
-  const post = await Post.firstOrFail();
-  response.assertJSON(post.$attributes);
   const postPic = await Database.select("pic_name").from("post_pictures");
   removeFile(resolve(`./public/uploads/${postPic[0].pic_name}`));
+  response.assertStatus(200);
+  const post = await Post.query()
+    .select("id", "content", "updated_at", "user_id")
+    .with("images", builder => {
+      builder.select(["id", "pic_name", "post_id"]);
+    })
+    .with("user", builder => {
+      builder.select(["id", "first_name", "last_name"]);
+    })
+    .fetch();
+  response.assertJSON(post.toJSON());
 });
 
 test("Authorized users can create posts with multiple pictures", async ({
@@ -69,13 +77,21 @@ test("Authorized users can create posts with multiple pictures", async ({
     .attach("imagem", testFile)
     .attach("imagem", testFile2)
     .end();
-  response.assertStatus(200);
-  const post = await Post.firstOrFail();
-  response.assertJSON(post.$attributes);
   const postPic = await Database.select("pic_name").from("post_pictures");
   postPic.forEach(pic => {
     removeFile(resolve(`./public/uploads/${pic.pic_name}`));
   });
+  response.assertStatus(200);
+  const post = await Post.query()
+    .select("id", "content", "updated_at", "user_id")
+    .with("images", builder => {
+      builder.select(["id", "pic_name", "post_id"]);
+    })
+    .with("user", builder => {
+      builder.select(["id", "first_name", "last_name"]);
+    })
+    .fetch();
+  response.assertJSON(post.toJSON());
 });
 
 test("Can´t create posts with invalid fields", async ({ client }) => {

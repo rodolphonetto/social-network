@@ -2,11 +2,12 @@
 const { resolve } = require("path");
 
 const Post = use("App/Models/Post");
+const PostPicture = use("App/Models/PostPicture");
 
 class PostPictureController {
-  async store({ request, response, auth }) {
-    const data = request.only(["post_id"]);
-    const post = await Post.findOrFail(data.post_id);
+  async store({ params, request }) {
+    const { id } = params;
+    const post = await Post.findOrFail(id);
 
     const image = request.file("imagem", {
       types: ["image"],
@@ -37,8 +38,10 @@ class PostPictureController {
           .map(img => post.images().create({ pic_name: img.fileName }))
       );
     }
-
-    return post;
+    const post_pictures = await PostPicture.query()
+      .where("post_id", post.id)
+      .fetch();
+    return post_pictures;
   }
 }
 
