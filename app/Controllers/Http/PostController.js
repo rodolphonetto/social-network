@@ -3,7 +3,6 @@
 const Post = use("App/Models/Post");
 
 const { resolve } = require("path");
-const Database = use("Database");
 
 class PostController {
   async index({ response }) {
@@ -74,7 +73,6 @@ class PostController {
         .fetch();
       return completePost.toJSON();
     } catch (err) {
-      console.log(err);
       response.internalServerError("Erro ao executar operação");
     }
   }
@@ -82,18 +80,16 @@ class PostController {
   async show({ params, response }) {
     const { id } = params;
     try {
-      const post = await Database.select(
-        "posts.id",
-        "posts.content",
-        "users.first_name",
-        "users.last_name",
-        "posts.created_at",
-        "images.pic_name"
-      )
-        .from("posts as posts")
-        .leftJoin("users as users", "posts.user_id", "users.id")
-        .leftJoin("post_pictures as images", "posts.id", "images.post_id")
-        .where("posts.id", id);
+      const post = await Post.query()
+        .select("id", "content", "updated_at", "user_id")
+        .with("images", builder => {
+          builder.select(["id", "pic_name", "post_id"]);
+        })
+        .with("user", builder => {
+          builder.select(["id", "first_name", "last_name"]);
+        })
+        .where("posts.id", id)
+        .fetch();
 
       return post;
     } catch (err) {

@@ -7,7 +7,6 @@ const removeFile = Helpers.promisify(fs.unlink);
 const testFile = Helpers.appRoot("test/download.jpg");
 const testFile2 = Helpers.appRoot("test/download2.jpg");
 const Database = use("Database");
-const PostPicture = use("App/Models/PostPicture");
 
 const { test, trait } = use("Test/Suite")("Post Picture");
 trait("Test/ApiClient");
