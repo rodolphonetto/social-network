@@ -29,7 +29,7 @@ test("Can access a single post", async ({ client, assert }) => {
 });
 
 test("Can access multiple posts", async ({ client, assert }) => {
-  const post = await Factory.model("App/Models/Post").createMany(3);
+  const posts = await Factory.model("App/Models/Post").createMany(3);
   const user = await Factory.model("App/Models/User").create();
   const response = await client
     .get(`/posts`)
@@ -37,7 +37,8 @@ test("Can access multiple posts", async ({ client, assert }) => {
     .send()
     .end();
   response.assertStatus(200);
-  assert.equal(response.body[1].content, post[1].$attributes.content);
+  const postsOrder = posts.sort((a, b) => a.id - b.id);
+  assert.equal(response.body[1].content, postsOrder[1].$attributes.content);
 });
 
 test("Authorized users can create posts", async ({ client }) => {
