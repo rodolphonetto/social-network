@@ -13,7 +13,7 @@ trait("Test/ApiClient");
 trait("Auth/Client");
 trait("DatabaseTransactions");
 
-test("Authorized user can add a pic to a post", async ({ client }) => {
+test("Authorized user can add a pic to a post", async ({ client, assert }) => {
   const post = await Factory.model("App/Models/Post").create();
   const user = await Factory.model("App/Models/User").create();
   const response = await client
@@ -25,10 +25,13 @@ test("Authorized user can add a pic to a post", async ({ client }) => {
   removeFile(resolve(`./public/uploads/${postPic[0].pic_name}`));
   response.assertStatus(200);
   const post_pictures = await Database.select("*").from("post_pictures");
-  response.assertJSON(post_pictures);
+  assert.equal(response.body.pic_name, post_pictures.pic_name);
 });
 
-test("Authorized user can add multiple pics to a post", async ({ client }) => {
+test("Authorized user can add multiple pics to a post", async ({
+  client,
+  assert
+}) => {
   const post = await Factory.model("App/Models/Post").create();
   const user = await Factory.model("App/Models/User").create();
   const response = await client
@@ -43,5 +46,7 @@ test("Authorized user can add multiple pics to a post", async ({ client }) => {
   });
   response.assertStatus(200);
   const post_pictures = await Database.select("*").from("post_pictures");
-  response.assertJSON(post_pictures);
+  post_pictures.forEach((pic, index) => {
+    assert.equal(response.body[index].pic_name, pic.pic_name);
+  });
 });

@@ -1,0 +1,21 @@
+{
+  "all": true,
+  "check-coverage": false,
+  "exclude": [
+    "coverage/**",
+    "app/Models",
+    "app/Jobs",
+    "app/Middleware",
+    "server.js",
+    ".eslintrc.js",
+    "packages/*/test/**",
+    "database",
+    "preloads",
+    "test/**",
+    "test{,-*}.{js,cjs,mjs,ts}",
+    "**/*{.,-}test.{js,cjs,mjs,ts}",
+    "**/__tests__/**",
+    "node_modules"
+  ],
+  "reporter": "html"
+}

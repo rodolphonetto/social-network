@@ -8,3 +8,5 @@ tmp
 
 # The development sqlite file
 database/*.sqlite
+
+coverage

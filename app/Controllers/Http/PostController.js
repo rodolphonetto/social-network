@@ -49,9 +49,9 @@ class PostController {
         .with("user", builder => {
           builder.select(["id", "first_name", "last_name"]);
         })
-        .where("id", post.id)
+        .where("posts.id", post.id)
         .fetch();
-      return completePost.toJSON();
+      return completePost;
     } catch (err) {
       response.internalServerError("Erro ao executar operação");
     }

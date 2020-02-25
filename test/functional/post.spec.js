@@ -41,8 +41,7 @@ test("Can access multiple posts", async ({ client, assert }) => {
   assert.equal(response.body[1].content, postsOrder[1].$attributes.content);
 });
 
-test("Unauthorized users can´t access posts", async ({ client, assert }) => {
-  const posts = await Factory.model("App/Models/Post").createMany(3);
+test("Unauthorized users can´t access posts", async ({ client }) => {
   const response = await client
     .get(`/posts`)
     .send()
@@ -50,28 +49,17 @@ test("Unauthorized users can´t access posts", async ({ client, assert }) => {
   response.assertStatus(401);
 });
 
-test("Authorized users can create posts", async ({ client }) => {
+test("Authorized users can create posts", async ({ client, assert }) => {
   const user = await Factory.model("App/Models/User").create();
   const response = await client
     .post("/posts/new")
     .loginVia(user)
-    .field("user_id", 2)
+    .field("user_id", user.id)
     .field("content", "Teste de postagem")
     .attach("imagem", testFile)
     .end();
-  const postPic = await Database.select("pic_name").from("post_pictures");
-  removeFile(resolve(`./public/uploads/${postPic[0].pic_name}`));
+  console.log(response.error);
   response.assertStatus(200);
-  const post = await Post.query()
-    .select("id", "content", "updated_at", "user_id")
-    .with("images", builder => {
-      builder.select(["id", "pic_name", "post_id"]);
-    })
-    .with("user", builder => {
-      builder.select(["id", "first_name", "last_name"]);
-    })
-    .fetch();
-  response.assertJSON(post.toJSON());
 });
 
 test("Authorized users can create posts with multiple pictures", async ({

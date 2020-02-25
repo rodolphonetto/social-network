@@ -14,7 +14,7 @@ class PostSchema extends Schema {
         .inTable("users")
         .onUpdate("CASCADE")
         .onDelete("CASCADE");
-      table.string("content");
+      table.text("content");
       table.timestamps();
     });
   }
