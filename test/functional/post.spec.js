@@ -54,11 +54,9 @@ test("Authorized users can create posts", async ({ client, assert }) => {
   const response = await client
     .post("/posts/new")
     .loginVia(user)
-    .field("user_id", user.id)
     .field("content", "Teste de postagem")
     .attach("imagem", testFile)
     .end();
-  console.log(response.error);
   response.assertStatus(200);
 });
 
