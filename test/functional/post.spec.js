@@ -21,8 +21,8 @@ test("Can access a single post", async ({ client, assert }) => {
   const user = await Factory.model("App/Models/User").create();
   const response = await client
     .post(`/post`)
-    .field("id", post.id)
     .loginVia(user)
+    .send({ id: post.id })
     .end();
   response.assertStatus(200);
   assert.equal(response.body[0].content, post.$attributes.content);

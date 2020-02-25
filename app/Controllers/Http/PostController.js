@@ -67,7 +67,6 @@ class PostController {
     if (!body.data_final) {
       body.data_final = "01/01/2900";
     }
-
     const data_inicial = moment.utc(body.data_inicial, "DD-MM-YYYY");
     const data_final = moment
       .utc(body.data_final, "DD-MM-YYYY")
