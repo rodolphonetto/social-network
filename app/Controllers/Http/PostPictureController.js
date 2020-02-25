@@ -1,12 +1,14 @@
 "use strict";
 
 const PostPicture = use("App/Models/PostPicture");
+const Post = use("App/Models/Post");
 
 const UploadService = use("App/Services/UploadService");
 
 class PostPictureController {
   async store({ params, request }) {
     const { id } = params;
+    const post = await Post.findOrFail(id);
 
     const image = request.file("imagem", {
       types: ["image"],
@@ -14,10 +16,10 @@ class PostPictureController {
     });
 
     const uploadService = new UploadService();
-    const post = await uploadService.uploadFile(image, id);
+    await uploadService.uploadPostImage(image, post);
 
     const post_pictures = await PostPicture.query()
-      .where("post_id", post)
+      .where("post_id", post.id)
       .fetch();
     return post_pictures;
   }

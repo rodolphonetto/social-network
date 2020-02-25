@@ -39,19 +39,20 @@ class PostController {
       });
 
       const uploadService = new UploadService();
-      await uploadService.uploadFile(image, post.id);
+      await uploadService.uploadPostImage(image, post);
 
-      // const completePost = await Post.query()
-      //   .select("id", "content", "updated_at", "user_id")
-      //   .with("images", builder => {
-      //     builder.select(["id", "pic_name", "post_id"]);
-      //   })
-      //   .with("user", builder => {
-      //     builder.select(["id", "first_name", "last_name"]);
-      //   })
-      //   .where("posts.id", post.id)
-      //   .fetch();
-      return post;
+      const completePost = await Post.query()
+        .select("id", "content", "updated_at", "user_id")
+        .with("images", builder => {
+          builder.select(["id", "pic_name", "post_id"]);
+        })
+        .with("user", builder => {
+          builder.select(["id", "first_name", "last_name"]);
+        })
+        .where("posts.id", post.id)
+        .fetch();
+
+      return completePost;
     } catch (err) {
       console.log(err);
       response.internalServerError("Erro ao executar operação");

@@ -1,7 +1,7 @@
 "use strict";
 
 const User = use("App/Models/User");
-const { resolve } = require("path");
+const UploadService = use("App/Services/UploadService");
 
 class UserController {
   async index({ request, response }) {}
@@ -22,18 +22,15 @@ class UserController {
       size: "2mb"
     });
 
-    const name = `${Date.now()}-${profile_pic.clientName}`;
-    await profile_pic.move(resolve("./public/uploads"), {
-      name: name
-    });
-
-    if (!profile_pic.moved()) {
-      return profile_pic.errors();
-    }
+    const uploadService = new UploadService();
+    const uploadedProfilePic = await uploadService.uploadUserAvatar(
+      profile_pic
+    );
+    console.log(uploadedProfilePic);
 
     const user = await User.create({
       ...data,
-      profile_pic: profile_pic.fileName
+      profile_pic: uploadedProfilePic
     });
 
     return user;

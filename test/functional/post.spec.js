@@ -57,7 +57,19 @@ test("Authorized users can create posts", async ({ client, assert }) => {
     .field("content", "Teste de postagem")
     .attach("imagem", testFile)
     .end();
+  const postPic = await Database.select("pic_name").from("post_pictures");
+  removeFile(resolve(`./public/uploads/${postPic[0].pic_name}`));
   response.assertStatus(200);
+  const post = await Post.query()
+    .select("id", "content", "updated_at", "user_id")
+    .with("images", builder => {
+      builder.select(["id", "pic_name", "post_id"]);
+    })
+    .with("user", builder => {
+      builder.select(["id", "first_name", "last_name"]);
+    })
+    .fetch();
+  response.assertJSON(post.toJSON());
 });
 
 test("Authorized users can create posts with multiple pictures", async ({
@@ -142,7 +154,7 @@ test("Unauthorized users can´t delete posts", async ({ client }) => {
   response.assertStatus(401);
 });
 
-test("Authorized users can update posts", async ({ client }) => {
+test("Authorized users can update posts", async ({ client, assert }) => {
   const post = await Factory.model("App/Models/Post").create();
   const response = await client
     .put(`posts/update/${post.id}`)
@@ -153,7 +165,7 @@ test("Authorized users can update posts", async ({ client }) => {
     .end();
   response.assertStatus(200);
   const updatedPost = await Post.firstOrFail();
-  response.assertJSON(updatedPost.$attributes);
+  assert.equal(response.body.content, updatedPost.$attributes.content);
 });
 
 test("Post can't be updated by a user who did not create it", async ({

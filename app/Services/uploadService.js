@@ -1,9 +1,7 @@
 const { resolve } = require("path");
-const Post = use("App/Models/Post");
 
 class UploadService {
-  async uploadFile(image, id) {
-    const post = await Post.findOrFail(id);
+  async uploadPostImage(image, post) {
     if (image.move) {
       await image.move(resolve("./public/uploads"), {
         name: `${Date.now()}-${image.clientName}`
@@ -14,7 +12,6 @@ class UploadService {
       }
       try {
         await post.images().create({ pic_name: image.fileName });
-        return post.id;
       } catch (err) {
         console.log(err);
       }
@@ -33,10 +30,24 @@ class UploadService {
             .movedList()
             .map(img => post.images().create({ pic_name: img.fileName }))
         );
-        return post.id;
       } catch (err) {
         console.log(err);
       }
+    }
+  }
+  async uploadUserAvatar(profile_pic) {
+    try {
+      const name = `${Date.now()}-${profile_pic.clientName}`;
+      await profile_pic.move(resolve("./public/uploads"), {
+        name: name
+      });
+
+      if (!profile_pic.moved()) {
+        return profile_pic.errors();
+      }
+      return name;
+    } catch (err) {
+      console.log(err);
     }
   }
 }
