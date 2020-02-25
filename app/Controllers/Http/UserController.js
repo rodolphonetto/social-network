@@ -26,7 +26,6 @@ class UserController {
     const uploadedProfilePic = await uploadService.uploadUserAvatar(
       profile_pic
     );
-    console.log(uploadedProfilePic);
 
     const user = await User.create({
       ...data,

@@ -20,7 +20,6 @@ class PostController {
         .fetch();
       return posts;
     } catch (err) {
-      console.log(err);
       response.internalServerError("Erro ao executar operação");
     }
   }
@@ -54,7 +53,6 @@ class PostController {
 
       return completePost;
     } catch (err) {
-      console.log(err);
       response.internalServerError("Erro ao executar operação");
     }
   }
@@ -91,7 +89,6 @@ class PostController {
 
       return post;
     } catch (err) {
-      console.log(err);
       response.internalServerError("Erro ao executar operação");
     }
   }
