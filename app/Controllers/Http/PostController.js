@@ -74,16 +74,26 @@ class PostController {
       .add(59, "m")
       .add(59, "s");
 
+    let query = Post.query();
+
+    let paramsToChain = {
+      id: body.id || null
+    };
+
+    Object.keys(paramsToChain).forEach(key => {
+      if (paramsToChain[key]) {
+        query.where(key, paramsToChain[key]);
+      }
+    });
+
     try {
-      const post = await Post.query()
-        .select("id", "content", "updated_at", "user_id")
+      const post = await query
         .with("images", builder => {
           builder.select(["id", "pic_name", "post_id"]);
         })
         .with("user", builder => {
           builder.select(["id", "first_name", "last_name"]);
         })
-        .where("posts.id", body.id)
         .whereBetween("updated_at", [data_inicial, data_final])
         .fetch();
 
