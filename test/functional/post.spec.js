@@ -28,6 +28,18 @@ test("Can access a single post", async ({ client, assert }) => {
   assert.equal(response.body[0].content, post.$attributes.content);
 });
 
+test("Can access a single post by Id and date", async ({ client, assert }) => {
+  const post = await Factory.model("App/Models/Post").create();
+  const user = await Factory.model("App/Models/User").create();
+  const response = await client
+    .post(`/post`)
+    .loginVia(user)
+    .send({ id: post.id, data_inicial: "01/01/1991", data_final: "31/12/2900" })
+    .end();
+  response.assertStatus(200);
+  assert.equal(response.body[0].content, post.$attributes.content);
+});
+
 test("Can access multiple posts", async ({ client, assert }) => {
   const posts = await Factory.model("App/Models/Post").createMany(3);
   const user = await Factory.model("App/Models/User").create();

@@ -24,11 +24,11 @@ class WhereChain {
     const query = Post.query();
 
     Object.keys(paramsToChain).forEach(key => {
-      if (paramsToChain[key]) {
+      if (paramsToChain[key] && key == "id") {
         query.where("id", paramsToChain[key]);
-      } else if (paramsToChain[key] && paramsToChain[key] == data_inicial) {
+      } else if (paramsToChain[key] && key == "data_inicial") {
         query.andWhere("updated_at", ">=", paramsToChain[key]);
-      } else if (paramsToChain[key] && paramsToChain[key] == data_final) {
+      } else if (paramsToChain[key] && key == "data_final") {
         query.andWhere("updated_at", "<=", paramsToChain[key]);
       }
     });

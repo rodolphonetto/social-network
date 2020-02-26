@@ -2,7 +2,7 @@
 
 const Post = use("App/Models/Post");
 const UploadService = use("App/Services/UploadService");
-const WhereChain = use("App/Services/WhereChain");
+const WhereChain = use("App/Services/Posts/WhereChain");
 
 class PostController {
   async index({ response }) {
@@ -59,7 +59,6 @@ class PostController {
     const body = request.only(["id", "data_inicial", "data_final"]);
 
     const whereChain = new WhereChain();
-
     const query = whereChain.showPost(body);
 
     try {
@@ -74,7 +73,6 @@ class PostController {
 
       return post;
     } catch (err) {
-      console.log(err);
       response.internalServerError("Erro ao executar operação");
     }
   }
