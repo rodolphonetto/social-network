@@ -111,6 +111,20 @@ test("Can´t create posts with invalid fields", async ({ client }) => {
   response.assertStatus(400);
 });
 
+test("Authorized users can´t create posts with invalid imagem field", async ({
+  client,
+  assert
+}) => {
+  const user = await Factory.model("App/Models/User").create();
+  const response = await client
+    .post("/posts/new")
+    .loginVia(user)
+    .field("content", "Teste de postagem")
+    .field("imagem", "Teste de postagem")
+    .end();
+  response.assertStatus(500);
+});
+
 test("Unauthorized user can´t create posts", async ({ client }) => {
   const response = await client
     .post("/posts/new")
@@ -130,6 +144,19 @@ test("Authorized users can delete posts", async ({ client, assert }) => {
     .end();
   response.assertStatus(200);
   assert.equal(await Post.getCount(), 0);
+});
+
+test("Authorized users can't delete post with invalid id", async ({
+  client
+}) => {
+  const post = await Factory.model("App/Models/Post").create();
+  const user = await Factory.model("App/Models/User").create();
+  const response = await client
+    .delete(`posts/delete/test`)
+    .loginVia(user)
+    .send()
+    .end();
+  response.assertStatus(500);
 });
 
 test("Post can't be deleted by a user who did not create it", async ({
