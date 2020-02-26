@@ -1,10 +1,8 @@
 "use strict";
 
-const moment = require("moment");
-
 const Post = use("App/Models/Post");
-
 const UploadService = use("App/Services/UploadService");
+const WhereChain = use("App/Services/WhereChain");
 
 class PostController {
   async index({ response }) {
@@ -60,31 +58,9 @@ class PostController {
   async show({ request, response }) {
     const body = request.only(["id", "data_inicial", "data_final"]);
 
-    if (!body.data_inicial) {
-      body.data_inicial = "01/01/1900";
-    }
+    const whereChain = new WhereChain();
 
-    if (!body.data_final) {
-      body.data_final = "01/01/2900";
-    }
-    const data_inicial = moment.utc(body.data_inicial, "DD-MM-YYYY");
-    const data_final = moment
-      .utc(body.data_final, "DD-MM-YYYY")
-      .add(23, "h")
-      .add(59, "m")
-      .add(59, "s");
-
-    let query = Post.query();
-
-    let paramsToChain = {
-      id: body.id || null
-    };
-
-    Object.keys(paramsToChain).forEach(key => {
-      if (paramsToChain[key]) {
-        query.where(key, paramsToChain[key]);
-      }
-    });
+    const query = whereChain.showPost(body);
 
     try {
       const post = await query
@@ -94,11 +70,11 @@ class PostController {
         .with("user", builder => {
           builder.select(["id", "first_name", "last_name"]);
         })
-        .whereBetween("updated_at", [data_inicial, data_final])
         .fetch();
 
       return post;
     } catch (err) {
+      console.log(err);
       response.internalServerError("Erro ao executar operação");
     }
   }
