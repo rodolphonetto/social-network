@@ -19,3 +19,10 @@ Factory.blueprint("App/Models/Post", async faker => {
     content: faker.paragraph()
   };
 });
+
+Factory.blueprint("App/Models/PostPicture", async faker => {
+  return {
+    post_id: (await Factory.model("App/Models/Post").create()).id,
+    pic_name: faker.avatar({ protocol: "https" })
+  };
+});

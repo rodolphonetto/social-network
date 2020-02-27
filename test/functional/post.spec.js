@@ -20,7 +20,7 @@ test("Can access a single post", async ({ client, assert }) => {
   const post = await Factory.model("App/Models/Post").create();
   const user = await Factory.model("App/Models/User").create();
   const response = await client
-    .post(`/post`)
+    .get(`/post`)
     .loginVia(user)
     .send({ id: post.id })
     .end();
@@ -32,12 +32,12 @@ test("Can access a single post by Id and date", async ({ client, assert }) => {
   const post = await Factory.model("App/Models/Post").create();
   const user = await Factory.model("App/Models/User").create();
   const response = await client
-    .post(`/post`)
+    .get(`/post`)
     .loginVia(user)
     .send({ id: post.id, data_inicial: "01/01/1991", data_final: "31/12/2900" })
     .end();
   response.assertStatus(200);
-  assert.equal(response.body[0].content, post.$attributes.content);
+  assert.equal(response.body[0].content, post.content);
 });
 
 test("Can access multiple posts", async ({ client, assert }) => {
@@ -50,7 +50,7 @@ test("Can access multiple posts", async ({ client, assert }) => {
     .end();
   response.assertStatus(200);
   const postsOrder = posts.sort((a, b) => a.id - b.id);
-  assert.equal(response.body[1].content, postsOrder[1].$attributes.content);
+  assert.equal(response.body[1].content, postsOrder[1].content);
 });
 
 test("Unauthorized users can´t access posts", async ({ client }) => {
@@ -161,7 +161,6 @@ test("Authorized users can delete posts", async ({ client, assert }) => {
 test("Authorized users can't delete post with invalid id", async ({
   client
 }) => {
-  const post = await Factory.model("App/Models/Post").create();
   const user = await Factory.model("App/Models/User").create();
   const response = await client
     .delete(`posts/delete/test`)
@@ -204,7 +203,7 @@ test("Authorized users can update posts", async ({ client, assert }) => {
     .end();
   response.assertStatus(200);
   const updatedPost = await Post.firstOrFail();
-  assert.equal(response.body.content, updatedPost.$attributes.content);
+  assert.equal(response.body.content, updatedPost.content);
 });
 
 test("Post can't be updated by a user who did not create it", async ({
