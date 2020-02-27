@@ -89,3 +89,18 @@ test("Authorized users can´t delete pics from other users", async ({
     .end();
   response.assertStatus(403);
 });
+
+test("Authorized user can't add a pic to a post from other users", async ({
+  client
+}) => {
+  const post = await Factory.model("App/Models/Post").create();
+  const notOwner = await Factory.model("App/Models/User").create();
+  const response = await client
+    .post(`/post_pics/add/${post.id}`)
+    .loginVia(notOwner)
+    .attach("imagem", testFile)
+    .end();
+  const postPic = await Database.select("pic_name").from("post_pictures");
+  removeFile(resolve(`./public/uploads/${postPic[0].pic_name}`));
+  response.assertStatus(403);
+});

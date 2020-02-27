@@ -20,9 +20,7 @@ class PostPictureController {
     if (post.user_id !== auth.user.id) {
       response
         .status(403)
-        .send(
-          "Você não pode excluir adicionar imagens a um post que não é seu."
-        );
+        .send("Você não pode adicionar imagens a um post que não é seu.");
     }
 
     const post_pictures = await PostPicture.query()
@@ -38,9 +36,7 @@ class PostPictureController {
     if (post.user_id !== auth.user.id) {
       response
         .status(403)
-        .send(
-          "Você não pode excluir adicionar imagens a um post que não é seu."
-        );
+        .send("Você não pode excluir imagens de um post que não é seu.");
     }
     const post_pic = await PostPicture.findOrFail(pic_id);
     await post_pic.delete();
