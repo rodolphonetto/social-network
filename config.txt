@@ -1,0 +1,16 @@
+HOST=127.0.0.1
+PORT=3333
+NODE_ENV=development
+APP_NAME=AdonisJs
+APP_URL=http://${HOST}:${PORT}
+CACHE_VIEWS=false
+APP_KEY=R9DVWUqNa2tnKTCvBAXvclwUVJzJo3er
+
+
+DB_CONNECTION=pg
+DB_HOST=tuffi.db.elephantsql.com
+DB_PORT=5432
+DB_USER=jotxberz
+DB_PASSWORD=KcU100eP_a1KbiHp430ulWDHNvHZ1VcX
+DB_DATABASE=jotxberz
+HASH_DRIVER=bcrypt

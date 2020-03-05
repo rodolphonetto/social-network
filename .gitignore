@@ -11,3 +11,7 @@ database/*.sqlite
 
 coverage
 .nyc_output
+
+.env
+
+.env.testing
