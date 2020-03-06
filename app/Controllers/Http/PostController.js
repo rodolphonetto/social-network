@@ -1,7 +1,7 @@
 "use strict";
 
 const Post = use("App/Models/Post");
-const UploadService = use("/Services/UploadService");
+const UploadService = use("App/Services/uploadService");
 const WhereChain = use("App/Services/Posts/WhereChain");
 
 class PostController {
