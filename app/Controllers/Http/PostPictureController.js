@@ -3,7 +3,7 @@
 const PostPicture = use("App/Models/PostPicture");
 const Post = use("App/Models/Post");
 
-const UploadService = use("App/Services/UploadService");
+const UploadService = use("App/Services/uploadService");
 
 class PostPictureController {
   async store({ params, request, response, auth }) {

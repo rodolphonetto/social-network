@@ -2,7 +2,7 @@
 
 const Post = use("App/Models/Post");
 const UploadService = use("App/Services/uploadService");
-const WhereChain = use("App/Services/Posts/WhereChain");
+const WhereChain = use("App/Services/Posts/whereChain");
 
 class PostController {
   async index({ response }) {

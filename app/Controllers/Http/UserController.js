@@ -1,7 +1,7 @@
 "use strict";
 
 const User = use("App/Models/User");
-const UploadService = use("App/Services/UploadService");
+const UploadService = use("App/Services/uploadService");
 
 class UserController {
   async index({ request, response }) {}
