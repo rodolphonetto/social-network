@@ -5,6 +5,8 @@ const Route = use("Route");
 // Users
 Route.post("/register", "UserController.create");
 Route.get("/login", "SessionController.create");
+// follow
+Route.post("/follow/new", "UserController.newFollow").middleware("auth");
 
 // Posts
 Route.get("/posts", "PostController.index");
@@ -25,6 +27,3 @@ Route.delete(
   "post_pics/delete/:post_id/:pic_id",
   "PostPictureController.destroy"
 ).middleware("auth");
-
-// follow
-Route.post("/follow/new", "FollowController.store").middleware("auth");

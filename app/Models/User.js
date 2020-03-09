@@ -17,6 +17,10 @@ class User extends Model {
     });
   }
 
+  follows() {
+    return this.belongsToMany("App/Models/User", "follower_id", "following_id");
+  }
+
   posts() {
     return this.hasMany("App/Models/Post");
   }
