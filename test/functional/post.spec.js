@@ -53,14 +53,6 @@ test("Can access multiple posts", async ({ client, assert }) => {
   assert.equal(response.body[1].content, postsOrder[1].content);
 });
 
-test("Unauthorized users can´t access posts", async ({ client }) => {
-  const response = await client
-    .get(`/posts`)
-    .send()
-    .end();
-  response.assertStatus(401);
-});
-
 test("Authorized users can create posts", async ({ client, assert }) => {
   const user = await Factory.model("App/Models/User").create();
   const response = await client

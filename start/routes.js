@@ -25,3 +25,6 @@ Route.delete(
   "post_pics/delete/:post_id/:pic_id",
   "PostPictureController.destroy"
 ).middleware("auth");
+
+// follow
+Route.post("/follow/new", "FollowController.store").middleware("auth");

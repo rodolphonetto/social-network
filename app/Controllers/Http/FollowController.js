@@ -1,93 +1,33 @@
-'use strict'
+"use strict";
 
-/** @typedef {import('@adonisjs/framework/src/Request')} Request */
-/** @typedef {import('@adonisjs/framework/src/Response')} Response */
-/** @typedef {import('@adonisjs/framework/src/View')} View */
+const Follow = use("App/Models/Follow");
 
-/**
- * Resourceful controller for interacting with follows
- */
 class FollowController {
-  /**
-   * Show a list of all follows.
-   * GET follows
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async index ({ request, response, view }) {
+  async store({ request, response, auth }) {
+    try {
+      const { id } = auth.user;
+      const data = request.only(["followed_id"]);
+      const follow = await Follow.create({ ...data, follower_id: id });
+
+      const completeFollow = await Follow.query()
+        .select("id", "follower_id", "followed_id")
+        .with("user_follower", builder => {
+          builder.select(["id", "username"]);
+        })
+        .with("user_followed", builder => {
+          builder.select(["id", "username"]);
+        })
+        .where("follows.id", follow.id)
+        .fetch();
+
+      return completeFollow;
+    } catch (err) {
+      console.log(err);
+      response.internalServerError("Erro ao executar operação");
+    }
   }
 
-  /**
-   * Render a form to be used for creating a new follow.
-   * GET follows/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
-  }
-
-  /**
-   * Create/save a new follow.
-   * POST follows
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async store ({ request, response }) {
-  }
-
-  /**
-   * Display a single follow.
-   * GET follows/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async show ({ params, request, response, view }) {
-  }
-
-  /**
-   * Render a form to update an existing follow.
-   * GET follows/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
-  }
-
-  /**
-   * Update follow details.
-   * PUT or PATCH follows/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async update ({ params, request, response }) {
-  }
-
-  /**
-   * Delete a follow with id.
-   * DELETE follows/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async destroy ({ params, request, response }) {
-  }
+  async destroy({ params, request, response }) {}
 }
 
-module.exports = FollowController
+module.exports = FollowController;

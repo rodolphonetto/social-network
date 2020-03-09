@@ -21,6 +21,14 @@ class User extends Model {
     return this.hasMany("App/Models/Post");
   }
 
+  follows() {
+    return this.hasMany("App/Models/Follow");
+  }
+
+  followeds() {
+    return this.hasMany("App/Models/Follow");
+  }
+
   tokens() {
     return this.hasMany("App/Models/Token");
   }
