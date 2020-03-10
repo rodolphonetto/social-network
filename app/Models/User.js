@@ -3,7 +3,6 @@
 /** @type {typeof import('@adonisjs/lucid/src/Lucid/Model')} */
 const Model = use("Model");
 
-/** @type {import('@adonisjs/framework/src/Hash')} */
 const Hash = use("Hash");
 
 class User extends Model {
@@ -17,8 +16,20 @@ class User extends Model {
     });
   }
 
-  follows() {
-    return this.belongsToMany("App/Models/User", "follower_id", "following_id");
+  followers() {
+    return this.belongsToMany(
+      "App/Models/User",
+      "user_id",
+      "follower_id"
+    ).pivotTable("followers");
+  }
+
+  following() {
+    return this.belongsToMany(
+      "App/Models/User",
+      "follower_id",
+      "user_id"
+    ).pivotTable("followers");
   }
 
   posts() {

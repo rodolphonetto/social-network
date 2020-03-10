@@ -35,18 +35,24 @@ class UserController {
     return user;
   }
 
-  async show({ params, request, response }) {}
+  async show({}) {
+    const users = await User.query()
+      .with("following")
+      .fetch();
+    return users;
+  }
 
   async update({ params, request, response }) {}
 
   async destroy({ params, request, response }) {}
 
   async newFollow({ params, request, response, auth }) {
-    const { id } = auth.user;
+    const user = auth.current.user;
     const data = request.only(["followed_id"]);
-    const followed = await User.find(data.followed_id); //user we want to follow
-    const user = await User.find(id); //us
-    await user.follows().attach([followed.id]);
+    await user.following().attach([data.followed_id]);
+    return response.json({
+      status: "success"
+    });
   }
 }
 

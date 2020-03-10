@@ -7,6 +7,7 @@ Route.post("/register", "UserController.create");
 Route.get("/login", "SessionController.create");
 // follow
 Route.post("/follow/new", "UserController.newFollow").middleware("auth");
+Route.get("/profile", "UserController.show").middleware("auth");
 
 // Posts
 Route.get("/posts", "PostController.index");
