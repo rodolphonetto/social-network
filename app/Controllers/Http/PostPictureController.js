@@ -32,15 +32,21 @@ class PostPictureController {
   async destroy({ params, response, auth }) {
     const { post_id, pic_id } = params;
 
-    const post = await Post.findOrFail(post_id);
-    if (post.user_id !== auth.user.id) {
-      response
-        .status(403)
-        .send("Você não pode excluir imagens de um post que não é seu.");
+    try {
+      const post = await Post.findOrFail(post_id);
+      if (post.user_id !== auth.user.id) {
+        response
+          .status(403)
+          .send("Você não pode excluir imagens de um post que não é seu.");
+      }
+      await post
+        .images()
+        .where("id", pic_id)
+        .delete();
+      response.send("Post excluido com sucesso");
+    } catch (err) {
+      console.log(err);
     }
-    const post_pic = await PostPicture.findOrFail(pic_id);
-    await post_pic.delete();
-    response.send("Post excluido com sucesso");
   }
 }
 
