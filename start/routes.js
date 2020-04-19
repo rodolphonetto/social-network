@@ -28,3 +28,6 @@ Route.delete(
   "post_pics/delete/:post_id/:pic_id",
   "PostPictureController.destroy"
 ).middleware("auth");
+
+// Teste route
+Route.get("teste", "PostPictureController.convertPDF")
